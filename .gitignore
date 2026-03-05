@@ -1,0 +1,15 @@
+node_modules/
+**/node_modules/
+
+.env
+**/.env
+
+backend/storage/
+backend/storage/**
+storage/
+
+dist/
+**/dist/
+
+.DS_Store
+
