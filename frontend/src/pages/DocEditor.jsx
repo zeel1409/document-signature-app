@@ -18,6 +18,7 @@ export function DocEditor() {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [signatureDataUrl, setSignatureDataUrl] = useState(null)
   const [placements, setPlacements] = useState([])
   const [saving, setSaving] = useState(false)
@@ -38,6 +39,7 @@ export function DocEditor() {
   async function loadAll() {
     setLoading(true)
     setError('')
+    setInfo('')
     try {
       const [d, sigs, aud] = await Promise.all([
         api.get(`/api/docs/${docId}`),
@@ -61,6 +63,7 @@ export function DocEditor() {
 
   function placeSignature() {
     setError('')
+    setInfo('')
     if (!signatureDataUrl) {
       setError('Draw a signature first.')
       return
@@ -145,6 +148,7 @@ export function DocEditor() {
   async function saveSignatures() {
     setSaving(true)
     setError('')
+    setInfo('')
     try {
       const locals = placements.filter((p) => p._local)
       for (const p of locals) {
@@ -159,6 +163,9 @@ export function DocEditor() {
         })
       }
       await loadAll()
+      if (locals.length > 0) {
+        setInfo('Signature placements saved.')
+      }
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to save signatures')
     } finally {
@@ -169,11 +176,12 @@ export function DocEditor() {
   async function finalize() {
     setFinalizing(true)
     setError('')
+    setInfo('')
     try {
       await saveSignatures()
       await api.post('/api/signatures/finalize', { documentId: docId })
       await loadAll()
-      alert('Signed PDF generated.')
+      setInfo('Signed PDF generated successfully.')
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to finalize')
     } finally {
@@ -212,6 +220,11 @@ export function DocEditor() {
         {error ? (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
             {error}
+          </div>
+        ) : null}
+        {info ? (
+          <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
+            {info}
           </div>
         ) : null}
 

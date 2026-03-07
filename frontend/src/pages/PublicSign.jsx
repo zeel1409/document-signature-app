@@ -17,6 +17,7 @@ export function PublicSign() {
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [signatureDataUrl, setSignatureDataUrl] = useState(null)
   const [placement, setPlacement] = useState(null)
   const [signerName, setSignerName] = useState('')
@@ -35,6 +36,7 @@ export function PublicSign() {
     async function load() {
       setLoading(true)
       setError('')
+      setInfo('')
       try {
         const res = await api.get(`/api/public/docs/${token}`)
         setDocMeta(res.data.doc)
@@ -49,6 +51,7 @@ export function PublicSign() {
 
   function placeSignature() {
     setError('')
+    setInfo('')
     if (!signatureDataUrl) {
       setError('Draw a signature first.')
       return
@@ -109,6 +112,7 @@ export function PublicSign() {
 
   async function signNow() {
     setError('')
+    setInfo('')
     if (!signerName || !signerEmail) {
       setError('Enter your name and email.')
       return
@@ -129,7 +133,7 @@ export function PublicSign() {
         heightPct: placement.heightPct,
         imageDataUrl: placement.imageDataUrl,
       })
-      alert('Signed PDF generated.')
+      setInfo('Signed PDF generated. You can now download it.')
       const signedUrl = res.data.signedFileUrl
       if (signedUrl) window.open(`${api.defaults.baseURL}${signedUrl}`, '_blank', 'noreferrer')
     } catch (err) {
@@ -141,6 +145,7 @@ export function PublicSign() {
 
   async function rejectNow() {
     setError('')
+    setInfo('')
     if (!signerName || !signerEmail) {
       setError('Enter your name and email.')
       return
@@ -152,7 +157,7 @@ export function PublicSign() {
     setSubmitting(true)
     try {
       await api.post(`/api/public/docs/${token}/reject`, { signerName, signerEmail, reason: rejectReason })
-      alert('Document rejected.')
+      setInfo('Document rejected successfully.')
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to reject')
     } finally {
@@ -177,6 +182,11 @@ export function PublicSign() {
         {error ? (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
             {error}
+          </div>
+        ) : null}
+        {info ? (
+          <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
+            {info}
           </div>
         ) : null}
 

@@ -19,6 +19,7 @@ export function Dashboard() {
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const hasDocs = useMemo(() => docs.length > 0, [docs])
@@ -26,6 +27,7 @@ export function Dashboard() {
   async function load() {
     setLoading(true)
     setError('')
+    setInfo('')
     try {
       const res = await api.get('/api/docs')
       setDocs(res.data.docs || [])
@@ -45,6 +47,7 @@ export function Dashboard() {
     if (!file) return
     setUploading(true)
     setError('')
+    setInfo('')
     try {
       const fd = new FormData()
       fd.append('file', file)
@@ -60,12 +63,13 @@ export function Dashboard() {
 
   async function onShare(docId) {
     setError('')
+    setInfo('')
     try {
       const res = await api.post(`/api/docs/${docId}/share`)
       const url = res.data.url
       if (url && navigator.clipboard?.writeText) await navigator.clipboard.writeText(url)
       await load()
-      alert(url ? `Public signing link copied:\n\n${url}` : 'Link created.')
+      setInfo(url ? 'Public signing link created and copied to your clipboard.' : 'Public signing link created.')
     } catch (err) {
       setError(err?.response?.data?.error || 'Failed to create share link')
     }
@@ -116,6 +120,11 @@ export function Dashboard() {
               </div>
 
               <div className="mt-4">
+                {info ? (
+                  <div className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-200">
+                    {info}
+                  </div>
+                ) : null}
                 {loading ? (
                   <div className="text-sm text-zinc-500">Loading…</div>
                 ) : !hasDocs ? (
