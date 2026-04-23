@@ -21,7 +21,8 @@ async function main() {
 
   const allowedOrigins = [
     'http://localhost:5173',
-    'https://fanciful-cupcake-11cd4a.netlify.app'
+    'https://fanciful-cupcake-11cd4a.netlify.app',
+    'https://document-signature-app-frontend-eosin.vercel.app'
   ]
 
   if (process.env.CORS_ORIGIN) {
