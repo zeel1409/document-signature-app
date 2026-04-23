@@ -19,9 +19,28 @@ async function main() {
   const app = express()
   app.set('trust proxy', true)
 
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'https://fanciful-cupcake-11cd4a.netlify.app'
+  ]
+
+  if (process.env.CORS_ORIGIN) {
+    const envOrigins = process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+    envOrigins.forEach((o) => {
+      if (!allowedOrigins.includes(o)) allowedOrigins.push(o)
+    })
+  }
+
   app.use(
     cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+      origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      },
+      credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   )
